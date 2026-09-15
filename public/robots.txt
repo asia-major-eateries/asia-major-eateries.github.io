@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://asia-major-eateries.github.io/sitemap-index.xml
