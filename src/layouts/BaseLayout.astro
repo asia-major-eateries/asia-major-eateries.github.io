@@ -1,0 +1,42 @@
+---
+import '../styles/global.css';
+import { site } from '../data/site';
+interface Props { title?: string; description?: string; noindex?: boolean; }
+const { title, description = site.description, noindex = false } = Astro.props;
+const fullTitle = title ? `${title} — ${site.name}` : site.name;
+const canonical = new URL(Astro.url.pathname, site.url);
+const organization = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: site.name,
+  url: site.url,
+};
+---
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width" />
+  <meta name="generator" content={Astro.generator} />
+  <title>{fullTitle}</title>
+  <meta name="description" content={description} />
+  <link rel="canonical" href={canonical} />
+  {noindex && <meta name="robots" content="noindex" />}
+  <meta name="theme-color" content="#17140f" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content={fullTitle} />
+  <meta property="og:description" content={description} />
+  <meta property="og:url" content={canonical} />
+  <meta name="twitter:card" content="summary_large_image" />
+  <script type="application/ld+json" set:html={JSON.stringify(organization)} />
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="shell"><div class="container nav"><a class="brand" href="/">AME</a><nav aria-label="Main navigation"><a href="/locations/">Locations</a><a href="/menus/">Menus</a><a href="/catering/">Catering</a><a href="/about/">About</a><a href="/careers/">Careers</a></nav></div></header>
+  <main id="main"><slot /></main>
+  <footer class="footer"><div class="container footer-grid"><div><strong>Asia Major Eateries</strong><p>Distinct restaurants. One dependable guest experience.</p></div><div><a href="/locations/">Locations</a><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a></div></div></footer>
+</body>
+</html>
+<style>
+.shell{position:sticky;top:0;z-index:50;background:rgba(247,241,230,.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--line)}.nav{height:76px;display:flex;align-items:center;justify-content:space-between;gap:24px}.brand{font:900 1.35rem/1 Georgia,serif;letter-spacing:.08em;text-decoration:none}.nav nav{display:flex;gap:22px;align-items:center}.nav nav a{text-decoration:none;font-size:.92rem;font-weight:750}.footer{background:var(--ink);color:var(--paper);padding:54px 0}.footer-grid{display:grid;grid-template-columns:1fr auto;gap:36px}.footer p{color:#cfc3b1;margin-top:8px}.footer-grid>div:last-child{display:grid;gap:8px}@media(max-width:720px){.nav nav a:nth-child(n+3){display:none}.footer-grid{grid-template-columns:1fr}}
+</style>
