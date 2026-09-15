@@ -1,0 +1,57 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+---
+<BaseLayout title="Location" description="Live Asia Major Eateries location details, hours, map, ratings, menu availability and current price ranges." noindex={true}>
+<section class="section"><div class="container detail"><a href="/locations/">← All locations</a><div id="location-status" class="notice">Loading current restaurant details…</div><div id="location-shell" class="hidden"><div class="hero-copy"><p class="eyebrow" id="place"></p><h1 id="name"></h1><p class="lede" id="address"></p><div id="actions" class="actions"></div></div><div class="grid fact-grid"><section class="card fact"><p class="eyebrow">Hours</p><div id="hours"></div></section><section class="card fact"><p class="eyebrow">Ratings & maps</p><div id="ratings"></div><a id="map-link" class="button secondary hidden" target="_blank" rel="noreferrer">Open map</a></section></div></div></div></section>
+<section id="menu-section" class="section menu hidden"><div class="container"><div class="menu-head"><div><p class="eyebrow">Live menu</p><h2 id="menu-name">Current menu</h2></div><p id="freshness" class="freshness"></p></div><div id="menu-grid" class="grid menu-grid"></div><div id="menu-empty" class="card empty hidden"><h3>Availability is not loaded yet.</h3><p>The operational API returned no menu items for this location.</p></div></div></section>
+<script>
+import { fetchAvailability, fetchLocation } from '../../lib/ame-api';
+const query = new URLSearchParams(window.location.search);
+const slug = query.get('slug')?.trim() ?? '';
+const statusEl = document.querySelector('#location-status');
+const shell = document.querySelector('#location-shell');
+const menuSection = document.querySelector('#menu-section');
+const nameEl = document.querySelector('#name');
+const placeEl = document.querySelector('#place');
+const addressEl = document.querySelector('#address');
+const actions = document.querySelector('#actions');
+const hours = document.querySelector('#hours');
+const ratings = document.querySelector('#ratings');
+const mapLink = document.querySelector('#map-link');
+const menuGrid = document.querySelector('#menu-grid');
+const menuEmpty = document.querySelector('#menu-empty');
+const menuName = document.querySelector('#menu-name');
+const freshness = document.querySelector('#freshness');
+
+const addLink = (parent, label, href, primary=false) => {
+  if (!href) return;
+  const link=document.createElement('a'); link.href=href; link.textContent=label; link.className=`button ${primary?'primary':'secondary'}`;
+  if(/^https?:/.test(href)){link.target='_blank';link.rel='noreferrer'} parent?.append(link);
+};
+const money = (minor, currency) => new Intl.NumberFormat(undefined,{style:'currency',currency}).format(minor/100);
+
+if (!slug) {
+  if(statusEl) statusEl.textContent='Choose a location from the directory first.';
+} else {
+  const [location, availability] = await Promise.all([fetchLocation(slug).catch(()=>null), fetchAvailability(slug).catch(()=>null)]);
+  if (!location) {
+    if(statusEl) statusEl.textContent='This location is not available from the live restaurant API yet.';
+  } else {
+    statusEl?.classList.add('hidden'); shell?.classList.remove('hidden');
+    if(nameEl) nameEl.textContent=location.name;
+    if(placeEl) placeEl.textContent=[location.city,location.region,location.countryCode].filter(Boolean).join(' · ');
+    if(addressEl) addressEl.textContent=location.address ?? '';
+    addLink(actions,'Order',location.orderUrl ?? '',true); addLink(actions,'Reserve',location.reserveUrl ?? '',true); addLink(actions,'Menu',location.menuUrl ?? '');
+    if(location.phoneE164) addLink(actions,'Call',`tel:${location.phoneE164}`);
+    if(hours){hours.textContent=''; if(location.hours?.length){for(const row of location.hours){const p=document.createElement('p'); p.textContent=row.closed?`${row.label}: Closed`:`${row.label}: ${row.open}–${row.close}`;hours.append(p)}}else{hours.textContent='Current hours are not loaded.'}}
+    if(ratings){ratings.textContent=''; for(const rating of location.ratings ?? []){const p=document.createElement('p');const a=document.createElement('a');a.href=rating.url;a.target='_blank';a.rel='noreferrer';a.textContent=`${rating.provider}${rating.rating?` · ${rating.rating}`:''}${rating.reviewCount!=null?` (${rating.reviewCount} reviews)`:''}`;p.append(a);ratings.append(p)}if(!(location.ratings?.length))ratings.textContent='Rating links are not loaded.'}
+    const mapQuery = location.latitude && location.longitude ? `${location.latitude},${location.longitude}` : location.address;
+    if(mapQuery && mapLink instanceof HTMLAnchorElement){mapLink.href=`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(mapQuery)}`;mapLink.classList.remove('hidden')}
+    if(availability){menuSection?.classList.remove('hidden');if(menuName)menuName.textContent=availability.menuName;if(freshness)freshness.textContent=availability.observedAt?`Updated ${new Date(availability.observedAt).toLocaleString()}`:'Freshness timestamp unavailable';if(menuGrid){menuGrid.textContent='';for(const item of availability.items){const card=document.createElement('article');card.className='card menu-item';const top=document.createElement('div');top.className='menu-item-top';const section=document.createElement('span');section.textContent=item.section;section.className='eyebrow';const state=document.createElement('span');state.className=`status ${item.state}`;state.textContent=item.state.replaceAll('-',' ');top.append(section,state);const h=document.createElement('h3');h.textContent=item.name;const price=document.createElement('strong');price.textContent=item.priceMinMinor===item.priceMaxMinor?money(item.priceMinMinor,item.currency):`${money(item.priceMinMinor,item.currency)}–${money(item.priceMaxMinor,item.currency)}`;card.append(top,h,price);if(item.description){const p=document.createElement('p');p.textContent=item.description;card.append(p)}menuGrid.append(card)}if(!availability.items.length)menuEmpty?.classList.remove('hidden')}}
+  }
+}
+</script>
+</BaseLayout>
+<style>
+.detail{display:grid;gap:38px}.notice{padding:28px;border:1px solid var(--line);border-radius:var(--radius);background:var(--card)}.hero-copy{display:grid;gap:22px}.actions{display:flex;flex-wrap:wrap;gap:10px}.fact-grid{grid-template-columns:1fr 1fr;margin-top:36px}.fact{padding:28px;display:grid;gap:18px}.fact div{display:grid;gap:8px}.menu{background:var(--paper2)}.menu-head{display:flex;justify-content:space-between;align-items:end;gap:24px;margin-bottom:34px}.freshness{color:var(--muted);font-size:.9rem}.menu-grid{grid-template-columns:repeat(2,1fr)}.menu-item{padding:26px;display:grid;gap:14px}.menu-item-top{display:flex;align-items:center;justify-content:space-between;gap:14px}.menu-item p{color:var(--muted)}.empty{padding:28px;display:grid;gap:10px}.hidden{display:none}@media(max-width:760px){.fact-grid,.menu-grid{grid-template-columns:1fr}.menu-head{align-items:start;flex-direction:column}}
+</style>
