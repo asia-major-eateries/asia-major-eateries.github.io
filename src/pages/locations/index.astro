@@ -1,0 +1,35 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { restaurants } from '../../data/site';
+const detailsHref = (slug: string) => `/locations/location/?slug=${encodeURIComponent(slug)}`;
+---
+<BaseLayout title="Locations" description="Find Asia Major Eateries locations with current hours, maps, ratings, menus, ordering and reservations.">
+<section class="section"><div class="container intro"><p class="eyebrow">Locations</p><h1>Choose a restaurant.</h1><p class="lede">Start with the location: current hours, address, map, rating links and service options. Then open its live menu to see what is actually available and the current price range.</p></div></section>
+<section class="section listing"><div class="container"><div id="location-grid" class="grid location-grid" aria-live="polite">
+{restaurants.map((location) => <article class="card location"><div class="meta"><span class={`status ${location.status}`}>{location.status.replaceAll('-',' ')}</span><span>{location.city}{location.region ? `, ${location.region}` : ''}</span></div><div><h2>{location.name}</h2>{location.concept && <p>{location.concept}</p>}</div>{location.address && <address>{location.address}</address>}<a class="button primary" href={detailsHref(location.slug)}>View location</a></article>)}
+</div><div id="location-empty" class:list={['card','empty',restaurants.length && 'hidden']}><p class="eyebrow">Connecting locations</p><h2>Verified locations will appear here.</h2><p class="lede">The page is ready to load the chain directory from the public AME API. No restaurant names, addresses, prices or ratings are fabricated when the operational source is empty.</p></div></div></section>
+<script>
+import { fetchLocations } from '../../lib/ame-api';
+const grid = document.querySelector('#location-grid');
+const empty = document.querySelector('#location-empty');
+const locations = await fetchLocations().catch(() => null);
+if (grid && locations?.length) {
+  grid.textContent = '';
+  empty?.classList.add('hidden');
+  for (const location of locations) {
+    const card = document.createElement('article'); card.className='card location';
+    const meta = document.createElement('div'); meta.className='meta';
+    const status = document.createElement('span'); status.className=`status ${location.status}`; status.textContent=location.status.replaceAll('-',' ');
+    const place = document.createElement('span'); place.textContent=[location.city,location.region].filter(Boolean).join(', ');
+    meta.append(status,place);
+    const heading=document.createElement('h2'); heading.textContent=location.name;
+    const address=document.createElement('address'); address.textContent=location.address ?? '';
+    const link=document.createElement('a'); link.className='button primary'; link.href=`/locations/location/?slug=${encodeURIComponent(location.slug)}`; link.textContent='View location';
+    card.append(meta,heading); if(location.address) card.append(address); card.append(link); grid.append(card);
+  }
+}
+</script>
+</BaseLayout>
+<style>
+.intro{display:grid;gap:24px}.listing{background:var(--paper2);padding-top:16px}.location-grid{grid-template-columns:repeat(2,1fr)}.location{padding:30px;display:grid;gap:24px;min-height:300px}.meta{display:flex;justify-content:space-between;gap:18px;color:var(--muted);text-transform:uppercase;font-size:.78rem;letter-spacing:.08em}.location address{font-style:normal;color:var(--muted)}.location .button{justify-self:start;align-self:end}.empty{padding:40px;display:grid;gap:18px}.hidden{display:none}@media(max-width:760px){.location-grid{grid-template-columns:1fr}}
+</style>
