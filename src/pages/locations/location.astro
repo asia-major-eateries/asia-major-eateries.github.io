@@ -23,31 +23,84 @@ const menuEmpty = document.querySelector('#menu-empty');
 const menuName = document.querySelector('#menu-name');
 const freshness = document.querySelector('#freshness');
 
-const addLink = (parent, label, href, primary=false) => {
+const addLink = (parent: Element | null, label: string, href: string, primary = false): void => {
   if (!href) return;
-  const link=document.createElement('a'); link.href=href; link.textContent=label; link.className=`button ${primary?'primary':'secondary'}`;
-  if(/^https?:/.test(href)){link.target='_blank';link.rel='noreferrer'} parent?.append(link);
+  const link = document.createElement('a');
+  link.href = href;
+  link.textContent = label;
+  link.className = `button ${primary ? 'primary' : 'secondary'}`;
+  if (/^https?:/.test(href)) { link.target = '_blank'; link.rel = 'noreferrer'; }
+  parent?.append(link);
 };
-const money = (minor, currency) => new Intl.NumberFormat(undefined,{style:'currency',currency}).format(minor/100);
+const money = (minor: number, currency: string): string =>
+  new Intl.NumberFormat(undefined, { style: 'currency', currency }).format(minor / 100);
 
 if (!slug) {
-  if(statusEl) statusEl.textContent='Choose a location from the directory first.';
+  if (statusEl) statusEl.textContent = 'Choose a location from the directory first.';
 } else {
-  const [location, availability] = await Promise.all([fetchLocation(slug).catch(()=>null), fetchAvailability(slug).catch(()=>null)]);
+  const [location, availability] = await Promise.all([
+    fetchLocation(slug).catch(() => null),
+    fetchAvailability(slug).catch(() => null),
+  ]);
   if (!location) {
-    if(statusEl) statusEl.textContent='This location is not available from the live restaurant API yet.';
+    if (statusEl) statusEl.textContent = 'This location is not available from the live restaurant API yet.';
   } else {
     statusEl?.classList.add('hidden'); shell?.classList.remove('hidden');
-    if(nameEl) nameEl.textContent=location.name;
-    if(placeEl) placeEl.textContent=[location.city,location.region,location.countryCode].filter(Boolean).join(' · ');
-    if(addressEl) addressEl.textContent=location.address ?? '';
-    addLink(actions,'Order',location.orderUrl ?? '',true); addLink(actions,'Reserve',location.reserveUrl ?? '',true); addLink(actions,'Menu',location.menuUrl ?? '');
-    if(location.phoneE164) addLink(actions,'Call',`tel:${location.phoneE164}`);
-    if(hours){hours.textContent=''; if(location.hours?.length){for(const row of location.hours){const p=document.createElement('p'); p.textContent=row.closed?`${row.label}: Closed`:`${row.label}: ${row.open}–${row.close}`;hours.append(p)}}else{hours.textContent='Current hours are not loaded.'}}
-    if(ratings){ratings.textContent=''; for(const rating of location.ratings ?? []){const p=document.createElement('p');const a=document.createElement('a');a.href=rating.url;a.target='_blank';a.rel='noreferrer';a.textContent=`${rating.provider}${rating.rating?` · ${rating.rating}`:''}${rating.reviewCount!=null?` (${rating.reviewCount} reviews)`:''}`;p.append(a);ratings.append(p)}if(!(location.ratings?.length))ratings.textContent='Rating links are not loaded.'}
+    if (nameEl) nameEl.textContent = location.name;
+    if (placeEl) placeEl.textContent = [location.city, location.region, location.countryCode].filter(Boolean).join(' · ');
+    if (addressEl) addressEl.textContent = location.address ?? '';
+    addLink(actions, 'Order', location.orderUrl ?? '', true);
+    addLink(actions, 'Reserve', location.reserveUrl ?? '', true);
+    addLink(actions, 'Menu', location.menuUrl ?? '');
+    if (location.phoneE164) addLink(actions, 'Call', `tel:${location.phoneE164}`);
+    if (hours) {
+      hours.textContent = '';
+      if (location.hours?.length) {
+        for (const row of location.hours) {
+          const p = document.createElement('p');
+          p.textContent = row.closed ? `${row.label}: Closed` : `${row.label}: ${row.open}–${row.close}`;
+          hours.append(p);
+        }
+      } else hours.textContent = 'Current hours are not loaded.';
+    }
+    if (ratings) {
+      ratings.textContent = '';
+      for (const rating of location.ratings ?? []) {
+        const p = document.createElement('p');
+        const a = document.createElement('a');
+        a.href = rating.url; a.target = '_blank'; a.rel = 'noreferrer';
+        a.textContent = `${rating.provider}${rating.rating != null ? ` · ${rating.rating}` : ''}${rating.reviewCount != null ? ` (${rating.reviewCount} reviews)` : ''}`;
+        p.append(a); ratings.append(p);
+      }
+      if (!(location.ratings?.length)) ratings.textContent = 'Rating links are not loaded.';
+    }
     const mapQuery = location.latitude && location.longitude ? `${location.latitude},${location.longitude}` : location.address;
-    if(mapQuery && mapLink instanceof HTMLAnchorElement){mapLink.href=`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(mapQuery)}`;mapLink.classList.remove('hidden')}
-    if(availability){menuSection?.classList.remove('hidden');if(menuName)menuName.textContent=availability.menuName;if(freshness)freshness.textContent=availability.observedAt?`Updated ${new Date(availability.observedAt).toLocaleString()}`:'Freshness timestamp unavailable';if(menuGrid){menuGrid.textContent='';for(const item of availability.items){const card=document.createElement('article');card.className='card menu-item';const top=document.createElement('div');top.className='menu-item-top';const section=document.createElement('span');section.textContent=item.section;section.className='eyebrow';const state=document.createElement('span');state.className=`status ${item.state}`;state.textContent=item.state.replaceAll('-',' ');top.append(section,state);const h=document.createElement('h3');h.textContent=item.name;const price=document.createElement('strong');price.textContent=item.priceMinMinor===item.priceMaxMinor?money(item.priceMinMinor,item.currency):`${money(item.priceMinMinor,item.currency)}–${money(item.priceMaxMinor,item.currency)}`;card.append(top,h,price);if(item.description){const p=document.createElement('p');p.textContent=item.description;card.append(p)}menuGrid.append(card)}if(!availability.items.length)menuEmpty?.classList.remove('hidden')}}
+    if (mapQuery && mapLink instanceof HTMLAnchorElement) {
+      mapLink.href = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(mapQuery)}`;
+      mapLink.classList.remove('hidden');
+    }
+    if (availability) {
+      menuSection?.classList.remove('hidden');
+      if (menuName) menuName.textContent = availability.menuName;
+      if (freshness) freshness.textContent = availability.observedAt ? `Updated ${new Date(availability.observedAt).toLocaleString()}` : 'Freshness timestamp unavailable';
+      if (menuGrid) {
+        menuGrid.textContent = '';
+        for (const item of availability.items) {
+          const card = document.createElement('article'); card.className = 'card menu-item';
+          const top = document.createElement('div'); top.className = 'menu-item-top';
+          const section = document.createElement('span'); section.textContent = item.section; section.className = 'eyebrow';
+          const state = document.createElement('span'); state.className = `status ${item.state}`; state.textContent = item.state.replaceAll('-', ' ');
+          top.append(section, state);
+          const h = document.createElement('h3'); h.textContent = item.name;
+          const price = document.createElement('strong');
+          price.textContent = item.priceMinMinor === item.priceMaxMinor ? money(item.priceMinMinor, item.currency) : `${money(item.priceMinMinor, item.currency)}–${money(item.priceMaxMinor, item.currency)}`;
+          card.append(top, h, price);
+          if (item.description) { const p = document.createElement('p'); p.textContent = item.description; card.append(p); }
+          menuGrid.append(card);
+        }
+        if (!availability.items.length) menuEmpty?.classList.remove('hidden');
+      }
+    }
   }
 }
 </script>
