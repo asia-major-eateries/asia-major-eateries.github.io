@@ -28,7 +28,7 @@ const organization = {
   <meta property="og:description" content={description} />
   <meta property="og:url" content={canonical} />
   <meta name="twitter:card" content="summary_large_image" />
-  <script type="application/ld+json" set:html={JSON.stringify(organization)} />
+  <script is:inline type="application/ld+json" set:html={JSON.stringify(organization)} />
 </head>
 <body>
   <a class="skip" href="#main">Skip to content</a>
