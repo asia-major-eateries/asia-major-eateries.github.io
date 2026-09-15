@@ -1,0 +1,24 @@
+{
+  "name": "asia-major-eateries.github.io",
+  "version": "0.2.0",
+  "private": true,
+  "type": "module",
+  "description": "Astro marketing and live restaurant-location discovery site for Asia Major Eateries.",
+  "engines": { "node": ">=22.12.0" },
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build && node scripts/verify-built-site.mjs",
+    "preview": "astro preview",
+    "check": "astro check",
+    "test": "node --test tests/*.test.mjs",
+    "validate": "npm run check && npm test && npm run build"
+  },
+  "dependencies": {
+    "@astrojs/sitemap": "3.7.3",
+    "astro": "7.2.9"
+  },
+  "devDependencies": {
+    "@astrojs/check": "0.9.10",
+    "typescript": "6.0.3"
+  }
+}
