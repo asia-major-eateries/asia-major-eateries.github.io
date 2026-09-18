@@ -1,15 +1,19 @@
+import japan from './menu-images/japan';
+import thailand from './menu-images/thailand';
+import { vietnam, india } from './menu-images/vietnam-india';
+import { nepal, pakistan } from './menu-images/nepal-pakistan';
+import { philippines, malaysia } from './menu-images/philippines-malaysia';
+import { korea, china } from './menu-images/korea-china';
+
 export type MenuDish = {
   country: string;
   name: string;
   description: string;
   defaultProtein: string;
   lowerGlycemicSwap: string;
-  spriteX: 0 | 100;
-  spriteY: 0 | 25 | 50 | 75 | 100;
+  image: string;
   alt: string;
 };
-
-export const menuPhotoSprite = '/images/menu/core-menu-sprite.webp';
 
 export const menuDishes: MenuDish[] = [
   {
@@ -18,8 +22,7 @@ export const menuDishes: MenuDish[] = [
     description: 'Creamy ramen with chashu, egg, scallions and nori.',
     defaultProtein: 'Pork',
     lowerGlycemicSwap: 'Lower-glycemic noodle option',
-    spriteX: 0,
-    spriteY: 0,
+    image: japan,
     alt: 'Tonkotsu ramen with chashu pork, egg, scallions and nori',
   },
   {
@@ -28,8 +31,7 @@ export const menuDishes: MenuDish[] = [
     description: 'Pad Thai with shrimp, bean sprouts, scallions, peanut and lime.',
     defaultProtein: 'Shrimp',
     lowerGlycemicSwap: 'Lower-glycemic noodle option',
-    spriteX: 100,
-    spriteY: 0,
+    image: thailand,
     alt: 'Shrimp pad Thai with bean sprouts, peanuts, herbs and lime',
   },
   {
@@ -38,8 +40,7 @@ export const menuDishes: MenuDish[] = [
     description: 'Aromatic pho with beef, herbs, bean sprouts and lime.',
     defaultProtein: 'Beef',
     lowerGlycemicSwap: 'Lower-glycemic noodle option',
-    spriteX: 0,
-    spriteY: 25,
+    image: vietnam,
     alt: 'Vietnamese beef pho with fresh herbs, bean sprouts and lime',
   },
   {
@@ -48,8 +49,7 @@ export const menuDishes: MenuDish[] = [
     description: 'Butter chicken with aromatic rice and naan.',
     defaultProtein: 'Chicken',
     lowerGlycemicSwap: 'Lower-glycemic rice or vegetable base',
-    spriteX: 100,
-    spriteY: 25,
+    image: india,
     alt: 'Butter chicken with basmati rice and naan',
   },
   {
@@ -58,8 +58,7 @@ export const menuDishes: MenuDish[] = [
     description: 'Steamed momo dumplings with tomato achar.',
     defaultProtein: 'Chicken',
     lowerGlycemicSwap: 'Vegetable-forward lower-glycemic preparation',
-    spriteX: 0,
-    spriteY: 50,
+    image: nepal,
     alt: 'Nepali chicken momo dumplings with tomato achar',
   },
   {
@@ -68,8 +67,7 @@ export const menuDishes: MenuDish[] = [
     description: 'Fragrant chicken biryani with herbs, fried onion and raita.',
     defaultProtein: 'Chicken',
     lowerGlycemicSwap: 'Lower-glycemic rice or vegetable base',
-    spriteX: 100,
-    spriteY: 50,
+    image: pakistan,
     alt: 'Pakistani chicken biryani with herbs and raita',
   },
   {
@@ -78,8 +76,7 @@ export const menuDishes: MenuDish[] = [
     description: 'Glossy braised chicken adobo with garlic rice.',
     defaultProtein: 'Chicken',
     lowerGlycemicSwap: 'Lower-glycemic rice or vegetable base',
-    spriteX: 0,
-    spriteY: 75,
+    image: philippines,
     alt: 'Filipino chicken adobo with garlic rice',
   },
   {
@@ -88,8 +85,7 @@ export const menuDishes: MenuDish[] = [
     description: 'Coconut rice with sambal, cucumber, peanuts, anchovies and chicken.',
     defaultProtein: 'Chicken',
     lowerGlycemicSwap: 'Lower-glycemic coconut grain or vegetable base',
-    spriteX: 100,
-    spriteY: 75,
+    image: malaysia,
     alt: 'Malaysian nasi lemak with fried chicken, sambal, cucumber and peanuts',
   },
   {
@@ -98,8 +94,7 @@ export const menuDishes: MenuDish[] = [
     description: 'Vegetables, beef, egg, sesame and gochujang over rice.',
     defaultProtein: 'Beef',
     lowerGlycemicSwap: 'Lower-glycemic grain or vegetable base',
-    spriteX: 0,
-    spriteY: 100,
+    image: korea,
     alt: 'Korean bibimbap with beef, vegetables, egg and gochujang',
   },
   {
@@ -108,8 +103,7 @@ export const menuDishes: MenuDish[] = [
     description: 'Chicken, dried chile, scallions and peanuts with rice.',
     defaultProtein: 'Chicken',
     lowerGlycemicSwap: 'Lower-glycemic rice or vegetable base',
-    spriteX: 100,
-    spriteY: 100,
+    image: china,
     alt: 'Kung pao chicken with dried chiles, peanuts, scallions and rice',
   },
 ];
