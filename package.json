@@ -6,12 +6,13 @@
   "description": "Astro marketing and live restaurant-location discovery site for Asia Major Eateries.",
   "engines": { "node": ">=22.19.0" },
   "scripts": {
-    "dev": "astro dev",
-    "build": "astro build && node scripts/verify-built-site.mjs",
+    "images": "node scripts/materialize-menu-images.mjs",
+    "dev": "npm run images && astro dev",
+    "build": "npm run images && astro build && node scripts/verify-built-site.mjs",
     "preview": "astro preview",
     "check": "astro check",
     "test": "node --test tests/*.test.mjs",
-    "validate": "npm run check && npm test && npm run build"
+    "validate": "npm run images && npm run check && npm test && astro build && node scripts/verify-built-site.mjs"
   },
   "dependencies": {
     "@astrojs/sitemap": "3.7.3",
